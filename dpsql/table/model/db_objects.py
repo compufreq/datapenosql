@@ -269,6 +269,7 @@ class Join(object):
         self._on_attribs_criteria: List[AttrCriterion] = kwargs.get('on', None)
         self._where_attribs_criteria: List[AttrCriterion] = kwargs.get('where', None)
         self._join_str: str = ''
+        self._join: Join = None
 
     def __str__(self):
         self._switch_join()
@@ -305,6 +306,14 @@ class Join(object):
     @property
     def where_attribs_criteria_(self):
         return self._where_attribs_criteria
+
+    @property
+    def join_(self):
+        return self._join
+
+    @join_.setter
+    def join_(self, param):
+        self._join = param
 
     @left_table_.setter
     def left_table_(self, param):
@@ -449,5 +458,7 @@ class Join(object):
         except TypeError as error:
             logger.exception('The Join does not contain On attributes', exc_info=True)
 
-
+    def join(self, join_obj: Join = None):
+        if join_obj:
+            return str(self) + str(join_obj)
 
