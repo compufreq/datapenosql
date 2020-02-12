@@ -460,5 +460,6 @@ class Join(object):
 
     def join(self, join_obj: Join = None):
         if join_obj:
-            return str(self) + str(join_obj)
+            self.join_str_ = str(self) + str(join_obj)
+            return self.join_str_
 
