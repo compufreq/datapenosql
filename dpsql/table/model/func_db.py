@@ -65,6 +65,14 @@ class DBFunc(object):
         self.func_str_ = res
         return res
 
+    @staticmethod
+    def custom_function_(func_method: str = '', alias: str = ''):
+        res = f"{func_method}"
+        if alias != '':
+            res += f' {alias}'
+
+        return res
+
 
 class StrFunc(DBFunc):
     def __init__(self, **kwargs):

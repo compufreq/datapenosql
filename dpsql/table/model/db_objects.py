@@ -238,7 +238,7 @@ class CalculatedColumn(Column):
 
     def __str__(self):
         if self.alias_ != '':
-            self.col_str_ = f'{str(self._db_calc)} AS {self.alias_}'
+            self.col_str_ = f'{str(self._db_calc)} {self.alias_}'
         return self.col_str_
 
     @property

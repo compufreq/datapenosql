@@ -42,8 +42,8 @@ print(func_col2)
 
 
 ag_func = AggregateFunc(is_func=True, calc_method='(x*y/z)')
-
-calc_col3 = CalculatedColumn(alias="test_alias", db_calc=ag_func)
+ag_func3 = DBFunc.custom_function_(func_method='(x*y/z)')
+calc_col3 = CalculatedColumn(alias="test_alias", db_calc=ag_func3)
 print(calc_col3)
 
 
