@@ -1,8 +1,6 @@
 from __future__ import annotations
 from enum import Enum
 from typing import List
-# from dpsql.table.model.db_objects import QueryTable, Column
-# from dpsql.table.helpers import table_col_name as col_proc
 
 
 class CriterionClause(Enum):
@@ -27,7 +25,6 @@ class CriterionClause(Enum):
 
 class Criterion(object):
     def __init__(self, **kwargs):
-        # self._left_table: str = kwargs.get('left_table', None)
         self._left_attr: str = kwargs.get('left_attr', None)
         self._clause: CriterionClause = kwargs.get('criteria', None)
         self._clause_str: str = ''
@@ -38,22 +35,16 @@ class Criterion(object):
         self._or_group: List[Criterion] = kwargs.get('or_group', None)
 
     def __str__(self):
-        # self._switch_criteria()
         self.clause_str_ = Criterion.criteria_str(self)
         return self.clause_str_
 
     def __repr__(self):
-        # self._switch_criteria()
         self.clause_str_ = Criterion.criteria_str(self)
         return self.clause_str_
 
     @property
     def left_attr_(self):
         return self._left_attr
-    #
-    # @property
-    # def left_table_(self):
-    #     return self._left_table
 
     @property
     def clause_(self):
@@ -86,10 +77,6 @@ class Criterion(object):
     @left_attr_.setter
     def left_attr_(self, param):
         self._left_attr = param
-    #
-    # @left_table_.setter
-    # def left_table_(self, param):
-    #     self._left_table = param
 
     @clause_.setter
     def clause_(self, param):
@@ -160,7 +147,6 @@ class Criterion(object):
         if self.alias_ != '':
             res = f'({res}) AS {self.alias_}'
 
-        # self.clause_str_ = res
         return res
 
     def _is_(self):
@@ -213,7 +199,6 @@ class Criterion(object):
 
             res = f'{left_attr_name} NOT IN {tuple(self.val_)}'
 
-        # self.clause_str_ = res
         return res
 
     def _is_not_null_(self):
@@ -393,16 +378,11 @@ class AttrCriterion(Criterion):
     def __init__(self, **kwargs):
         super(AttrCriterion, self).__init__(**kwargs)
         self._right_attr: str = kwargs.get('right_attr', '')
-        # self._right_table: str = kwargs.get('right_table', '')
         self._join_expression: str = kwargs.get('join_expression', '')
 
     @property
     def right_attr_(self):
         return self._right_attr
-    #
-    # @property
-    # def right_table_(self):
-    #     return self._right_table
 
     @property
     def join_expression_(self):
@@ -411,10 +391,6 @@ class AttrCriterion(Criterion):
     @right_attr_.setter
     def right_attr_(self, param):
         self._right_attr = param
-    #
-    # @right_table_.setter
-    # def right_table_(self, param):
-    #     self._right_table = param
 
     @join_expression_.setter
     def join_expression_(self, param):

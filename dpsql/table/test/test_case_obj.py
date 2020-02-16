@@ -17,7 +17,3 @@ criteria2 = ValCriterion(left_table=tbl2, left_attr=col2, criteria=CriterionClau
 
 case1 = CaseObjectContent(when=criteria1, then='2')
 case2 = CaseObjectContent(when=criteria2, then='30')
-#
-# case_main = Case(cases=[case1, case2])
-#
-# print(case_main)

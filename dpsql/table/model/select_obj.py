@@ -1,8 +1,6 @@
 from typing import List
 
 from dpsql.table.model.db_objects import Column, QueryTable
-from dpsql.table.model.db_objects import Join
-from dpsql.table.model.statement_obj import Statement
 
 
 class Select(object):
@@ -154,10 +152,10 @@ class Select(object):
     def query_alias(self) -> str:
         if self.alias_ != "" and self.is_attrib_ is True:
             return f'({self.select_str_}) AS {self.alias_}'
-        
+
         elif self.alias_ != "" and self.is_sub_query_ is True:
             return f'({self.select_str_}) {self.alias_}'
-        
+
         else:
             return self.select_str_
 

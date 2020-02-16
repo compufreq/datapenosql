@@ -300,7 +300,6 @@ class Column(object):
         self._table_name = param
 
     def __str__(self):
-        # self.col_str_ = self.alias_ if self.alias_ != '' else self.table_col_name()
         self.col_str_ = self.table_col_name()
         return self.col_str_
 
@@ -389,6 +388,7 @@ class CalculatedColumn(Column):
     @db_calc_.setter
     def db_calc_(self, param):
         self._db_calc = param
+
 
 class CustomColumn(object):
     def __init__(self, **kwargs):
@@ -515,7 +515,6 @@ class Join(object):
     def inner_(self):
         logger = logging.getLogger(__name__)
         res = ''
-
         try:
             left_t = self.left_table_.from_name_
             right_t = self.right_table_.from_name_
@@ -529,7 +528,6 @@ class Join(object):
     def left_outer_(self):
         logger = logging.getLogger(__name__)
         res = ''
-
         try:
             left_t = self.left_table_.from_name_
             right_t = self.right_table_.from_name_
@@ -543,7 +541,6 @@ class Join(object):
     def right_outer_(self):
         logger = logging.getLogger(__name__)
         res = ''
-
         try:
             left_t = self.left_table_.from_name_
             right_t = self.right_table_.from_name_
@@ -557,7 +554,6 @@ class Join(object):
     def cross_(self):
         logger = logging.getLogger(__name__)
         res = ''
-
         try:
             res = f"{', '.join(table_in.from_name_ for table_in in self.cross_join_tables_)}"
             if len(self.cross_join_tables_) == 2:
@@ -573,7 +569,6 @@ class Join(object):
     def natural_(self):
         logger = logging.getLogger(__name__)
         res = ''
-
         try:
             left_t = self.left_table_.from_name_
             right_t = self.right_table_.from_name_
@@ -586,7 +581,6 @@ class Join(object):
     def natural_left_(self):
         logger = logging.getLogger(__name__)
         res = ''
-
         try:
             left_t = self.left_table_.from_name_
             right_t = self.right_table_.from_name_
@@ -600,7 +594,6 @@ class Join(object):
     def natural_right_(self):
         logger = logging.getLogger(__name__)
         res = ''
-
         try:
             left_t = self.left_table_.from_name_
             right_t = self.right_table_.from_name_

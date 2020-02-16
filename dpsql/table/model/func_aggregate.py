@@ -96,7 +96,6 @@ class AggregateFunc(object):
 
     def _max_(self):
         res = ''
-
         if self._alias != '':
             res = f'MAX({self.attr_}) {self.alias_}'
         else:
@@ -106,7 +105,6 @@ class AggregateFunc(object):
 
     def _min_(self):
         res = ''
-
         if self._alias != '':
             res = f'MIN({self.attr_}) {self.alias_}'
         else:
@@ -116,7 +114,6 @@ class AggregateFunc(object):
 
     def _sum_(self):
         res = ''
-
         if self._alias != '':
             res = f'SUM({self.attr_}) {self.alias_}'
         else:
@@ -126,7 +123,6 @@ class AggregateFunc(object):
 
     def _avg_(self):
         res = ''
-
         if self._alias != '':
             res = f'AVG({self.attr_}) {self.alias_}'
         else:
