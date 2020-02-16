@@ -1,6 +1,5 @@
-from dpsql.table.model.join_obj import QueryTable, Column
+from dpsql.table.model.db_objects import QueryTable, Column
 from dpsql.table.model.criterion_obj import AttrCriterion, CriterionClause, ValCriterion
-from dpsql.table.model.join_obj import Join, JoinClause
 
 tbl1 = QueryTable(name='test_table_1')
 col1 = Column(name='test_col_1', table=tbl1)

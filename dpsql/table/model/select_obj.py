@@ -1,8 +1,6 @@
 from typing import List
 
 from dpsql.table.model.db_objects import Column, QueryTable
-from dpsql.table.model.db_objects import Join
-from dpsql.table.model.statement_obj import Statement
 
 
 class Select(object):
