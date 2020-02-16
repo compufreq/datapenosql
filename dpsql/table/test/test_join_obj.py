@@ -31,19 +31,6 @@ criteria5.clause_ = CriterionClause.Equal
 criteria6 = AttrCriterion(left_attr=col3, right_attr=col5, criteria=CriterionClause.Equal)
 criteria6.clause_ = CriterionClause.Equal
 
-# join1 = Join(cross_tables=[tbl1, tbl2], where=[criteria1, criteria2], join_clause=JoinClause.Cross)
-# print(str(join1))
-#
-# join2 = Join(cross_tables=[tbl1, tbl2], on=[criteria1, criteria2], join_clause=JoinClause.Cross)
-# print(str(join2))
-#
-# join5 = Join(left_table=tbl1, right_table=tbl2, on=[criteria1, criteria4], join_clause=JoinClause.Inner)
-# join3 = Join(left_table=tbl1, right_table=tbl2, on=[criteria1, criteria2], join_clause=JoinClause.Inner)
-# print(str(join3))
-
-# join4 = Join(left_table=tbl2, right_table=tbl3, on=[criteria5, criteria6], join_clause=JoinClause.Inner)
-# str_join = join4.join(join3.join(join5))
-# print(str_join)
 
 t = tbl2.inner_join_(right_table=tbl3, on=[
     AttrCriterion(left_attr=col1, right_attr=col5, criteria=CriterionClause.Equal),

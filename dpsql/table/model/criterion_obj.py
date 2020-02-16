@@ -32,8 +32,8 @@ class Criterion(object):
         self._clause: CriterionClause = kwargs.get('criteria', None)
         self._clause_str: str = ''
         self._alias: str = ''
-        self._and: List[Criterion] = kwargs.get('and', None)
-        self._or: List[Criterion] = kwargs.get('or', None)
+        self._and: List[Criterion] = kwargs.get('and_', None)
+        self._or: List[Criterion] = kwargs.get('or_', None)
         self._and_group: List[Criterion] = kwargs.get('and_group', None)
         self._or_group: List[Criterion] = kwargs.get('or_group', None)
 
@@ -139,7 +139,10 @@ class Criterion(object):
             'IsNull': self._is_null_,
             'IsNotNull': self._is_not_null_
         }
-        return res_dict.get(self.clause_.name, '')()
+        if self.clause_:
+            return res_dict.get(self.clause_.name, '')()
+        else:
+            return self._is_()
 
     def _between_(self):
         crit_type = type(self)

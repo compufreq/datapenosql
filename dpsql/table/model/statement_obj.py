@@ -60,7 +60,7 @@ class Statement(object):
         self.statement_str_ = f"Distinct {', '.join(str(var) for var in self.criteria_)}"
 
     def _where_(self):
-        self.statement_str_ = f"Where {self.criteria_[0]}"
+        self.statement_str_ = f"Where {' and '.join(str(var) for var in self.criteria_)}"
 
     def _group_by_(self):
         self.statement_str_ = f"Group By {', '.join(str(var) for var in self.criteria_)}"

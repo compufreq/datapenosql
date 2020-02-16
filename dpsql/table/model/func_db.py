@@ -77,7 +77,7 @@ class DBFunc(object):
 class StrFunc(DBFunc):
     def __init__(self, **kwargs):
         super(StrFunc, self).__init__(**kwargs)
-        self._input_source: Tuple = kwargs.get('columns', '')
+        self._input_source: List = kwargs.get('columns', '')
 
     @property
     def input_source_(self):
@@ -163,7 +163,7 @@ class StrFunc(DBFunc):
         self.func_str_ = res
         return res
 
-    def decode_(self, options: Tuple):
+    def decode_(self, options: List[Tuple]):
         src = self.input_source_[0]
         res = ''
         if options:

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import logging
 from enum import Enum
-from typing import List
+from typing import List, Dict
 
 from dpsql.table.model.func_aggregate import AggregateFunc
 from dpsql.table.model.func_db import DBFunc
@@ -11,7 +11,7 @@ from dpsql.table.model.criterion_obj import AttrCriterion
 
 class QueryTable(object):
     def __init__(self, **kwargs):
-        self._columns: List[Column] = kwargs.get('columns', None)
+        self._columns: Dict[Column]  = kwargs.get('columns', None)
         self._name: str = kwargs.get('name', '')
         self._alias: str = kwargs.get('alias', '')
         self._from_name: str = kwargs.get('from_name', '')

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import logging
 from enum import Enum
-from typing import List
+from typing import List, Dict
 
 from dpsql.table.model.func_aggregate import AggregateFunc
 from dpsql.table.model.func_db import DBFunc
@@ -11,10 +11,11 @@ from dpsql.table.model.criterion_obj import AttrCriterion
 
 class QueryTable(object):
     def __init__(self, **kwargs):
-        self._columns: List[Column] = kwargs.get('columns', None)
+        self._columns: Dict[Column]  = kwargs.get('columns', None)
         self._name: str = kwargs.get('name', '')
         self._alias: str = kwargs.get('alias', '')
         self._from_name: str = kwargs.get('from_name', '')
+        self._join_str = ''
 
     def __str__(self):
         return self.table_name_getter()
@@ -39,6 +40,10 @@ class QueryTable(object):
     def alias_(self):
         return self._alias
 
+    @property
+    def join_str_(self):
+        return self._join_str
+
     @columns_.setter
     def columns_(self, param: List[Column]):
         self._columns = param
@@ -55,12 +60,148 @@ class QueryTable(object):
     def alias_(self, param):
         self._alias = param
 
+    @join_str_.setter
+    def join_str_(self, param):
+        self._join_str = param
+
     def table_name_getter(self):
         res = self.name_
         if self.alias_ != "":
             res = self.alias_
 
         return res
+
+    def inner_join_(self, right_table, on):
+        logger = logging.getLogger(__name__)
+        res = ''
+        try:
+            left_t = self.from_name_
+            right_t = right_table
+            if self.join_str_ == '':
+                res = f"{left_t} inner join {right_t} on ("
+                res += f"{' and '.join(str(crit) for crit in on)}) "
+                self.join_str_ = res
+                right_t.join_str_ = res
+            else:
+                res = f"inner join {right_t} on ("
+                res += f"{' and '.join(str(crit) for crit in on)}) "
+                self.join_str_ += res
+                right_t.join_str_ = self.join_str_
+
+            return right_t
+
+        except TypeError as error:
+            logger.exception('The Join does not contain On attributes', exc_info=True)
+
+    def left_outer_join_(self, right_table, on):
+        logger = logging.getLogger(__name__)
+        res = ''
+        try:
+            left_t = self.from_name_
+            right_t = right_table
+            if self.join_str_ == '':
+                res = f"{left_t} left outer join {right_t} on ("
+                res += f"{' and '.join(str(crit) for crit in on)}) "
+                self.join_str_ = res
+                right_t.join_str_ = res
+            else:
+                res = f"left outer join {right_t} on ("
+                res += f"{' and '.join(str(crit) for crit in on)}) "
+                self.join_str_ += res
+                right_t.join_str_ = self.join_str_
+
+            return right_t
+
+        except TypeError as error:
+            logger.exception('The Join does not contain On attributes', exc_info=True)
+
+    def right_outer_join_(self, right_table, on):
+        logger = logging.getLogger(__name__)
+        res = ''
+        try:
+            left_t = self.from_name_
+            right_t = right_table
+            if self.join_str_ == '':
+                res = f"{left_t} right outer join {right_t} on ("
+                res += f"{' and '.join(str(crit) for crit in on)}) "
+                self.join_str_ = res
+                right_t.join_str_ = res
+            else:
+                res = f"right outer join {right_t} on ("
+                res += f"{' and '.join(str(crit) for crit in on)}) "
+                self.join_str_ += res
+                right_t.join_str_ = self.join_str_
+
+            return right_t
+
+        except TypeError as error:
+            logger.exception('The Join does not contain On attributes', exc_info=True)
+
+    def natural_join_(self, right_table, on):
+        logger = logging.getLogger(__name__)
+        res = ''
+        try:
+            left_t = self.from_name_
+            right_t = right_table
+            if self.join_str_ == '':
+                res = f"{left_t} natural join {right_t} on ("
+                res += f"{' and '.join(str(crit) for crit in on)}) "
+                self.join_str_ = res
+                right_t.join_str_ = res
+            else:
+                res = f"natural join {right_t} on ("
+                res += f"{' and '.join(str(crit) for crit in on)}) "
+                self.join_str_ += res
+                right_t.join_str_ = self.join_str_
+
+            return right_t
+
+        except TypeError as error:
+            logger.exception('The Join does not contain On attributes', exc_info=True)
+
+    def natural_left_join_(self, right_table, on):
+        logger = logging.getLogger(__name__)
+        res = ''
+        try:
+            left_t = self.from_name_
+            right_t = right_table
+            if self.join_str_ == '':
+                res = f"{left_t} natural left join {right_t} on ("
+                res += f"{' and '.join(str(crit) for crit in on)}) "
+                self.join_str_ = res
+                right_t.join_str_ = res
+            else:
+                res = f"natural left join {right_t} on ("
+                res += f"{' and '.join(str(crit) for crit in on)}) "
+                self.join_str_ += res
+                right_t.join_str_ = self.join_str_
+
+            return right_t
+
+        except TypeError as error:
+            logger.exception('The Join does not contain On attributes', exc_info=True)
+
+    def natural_right_join_(self, right_table, on):
+        logger = logging.getLogger(__name__)
+        res = ''
+        try:
+            left_t = self.from_name_
+            right_t = right_table
+            if self.join_str_ == '':
+                res = f"{left_t} natural right join {right_t} on ("
+                res += f"{' and '.join(str(crit) for crit in on)}) "
+                self.join_str_ = res
+                right_t.join_str_ = res
+            else:
+                res = f"natural right join {right_t} on ("
+                res += f"{' and '.join(str(crit) for crit in on)}) "
+                self.join_str_ += res
+                right_t.join_str_ = self.join_str_
+
+            return right_t
+
+        except TypeError as error:
+            logger.exception('The Join does not contain On attributes', exc_info=True)
 
     def column_name_getter(self):
         table_name = self.table_name_getter()
@@ -170,7 +311,7 @@ class Column(object):
     def set_col_alias(self):
         attrib_alias = self.alias_ if self.alias_ != "" else ""
         if attrib_alias != "":
-            return f'{self.table_col_name()} AS {attrib_alias}'
+            return f'{self.table_col_name()}  {attrib_alias}'
         else:
             return str(self)
 
@@ -219,7 +360,7 @@ class FuncColumn(Column):
 
     def __str__(self):
         if self.alias_ != '':
-            self.col_str_ = f'({str(self._db_func)}) AS {self.alias_}'
+            self.col_str_ = f'({str(self._db_func)}) {self.alias_}'
         return self.col_str_
 
     @property
@@ -249,6 +390,32 @@ class CalculatedColumn(Column):
     def db_calc_(self, param):
         self._db_calc = param
 
+class CustomColumn(object):
+    def __init__(self, **kwargs):
+        self._column: str = kwargs.get('column', '')
+        self._alias: str =  kwargs.get('alias', '')
+
+    def __str__(self):
+        if self.alias_ != '':
+            self.col_str_ = f'{str(self._column).rstrip()} {self.alias_}'
+        return self.col_str_
+
+    @property
+    def column_(self):
+        return self._column
+
+    @property
+    def alias_(self):
+        return self._alias
+
+    @column_.setter
+    def column_(self, param):
+        self._column = param
+
+    @alias_.setter
+    def alias_(self, param):
+        self._alias = param
+
 
 class JoinClause(Enum):
     Inner = 1
@@ -269,15 +436,14 @@ class Join(object):
         self._on_attribs_criteria: List[AttrCriterion] = kwargs.get('on', None)
         self._where_attribs_criteria: List[AttrCriterion] = kwargs.get('where', None)
         self._join_str: str = ''
-        self._join: Join = None
 
     def __str__(self):
-        self._switch_join()
-        return self.join_str_
+        if self.join_str_:
+            return self.join_str_
 
     def __repr__(self):
-        self._switch_join()
-        return self.join_str_
+        if self.join_str_:
+            return self.join_str_
 
     @property
     def left_table_(self):
@@ -344,22 +510,9 @@ class Join(object):
         self._where_attribs_criteria = param
 
     def join_to_string(self):
-        self._switch_join()
         return self.join_str_
 
-    def _switch_join(self):
-        res_dict = {
-            'Inner': self._inner_,
-            'LeftOuter': self._left_outer_,
-            'RightOuter': self._right_outer_,
-            'Cross': self._cross_,
-            'Natural': self._natural_,
-            'NaturalLeft': self._natural_left_,
-            'NaturalRight': self._natural_right_,
-        }
-        return res_dict.get(self.type_.name, '')()
-
-    def _inner_(self):
+    def inner_(self):
         logger = logging.getLogger(__name__)
         res = ''
 
@@ -373,7 +526,7 @@ class Join(object):
         except TypeError as error:
             logger.exception('The Join does not contain On attributes', exc_info=True)
 
-    def _left_outer_(self):
+    def left_outer_(self):
         logger = logging.getLogger(__name__)
         res = ''
 
@@ -387,7 +540,7 @@ class Join(object):
         except TypeError as error:
             logger.exception('The Join does not contain On attributes', exc_info=True)
 
-    def _right_outer_(self):
+    def right_outer_(self):
         logger = logging.getLogger(__name__)
         res = ''
 
@@ -401,7 +554,7 @@ class Join(object):
         except TypeError as error:
             logger.exception('The Join does not contain On attributes', exc_info=True)
 
-    def _cross_(self):
+    def cross_(self):
         logger = logging.getLogger(__name__)
         res = ''
 
@@ -417,7 +570,7 @@ class Join(object):
         except TypeError as error:
             logger.exception('The Join does not contain On or Where attributes', exc_info=True)
 
-    def _natural_(self):
+    def natural_(self):
         logger = logging.getLogger(__name__)
         res = ''
 
@@ -430,7 +583,7 @@ class Join(object):
         except TypeError as error:
             logger.exception('The Join does not contain On attributes', exc_info=True)
 
-    def _natural_left_(self):
+    def natural_left_(self):
         logger = logging.getLogger(__name__)
         res = ''
 
@@ -444,7 +597,7 @@ class Join(object):
         except TypeError as error:
             logger.exception('The Join does not contain On attributes', exc_info=True)
 
-    def _natural_right_(self):
+    def natural_right_(self):
         logger = logging.getLogger(__name__)
         res = ''
 
@@ -457,9 +610,3 @@ class Join(object):
 
         except TypeError as error:
             logger.exception('The Join does not contain On attributes', exc_info=True)
-
-    def join(self, join_obj: Join = None):
-        if join_obj:
-            self.join_str_ = str(self) + str(join_obj)
-            return self.join_str_
-

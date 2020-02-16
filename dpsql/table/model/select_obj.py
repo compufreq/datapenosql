@@ -7,15 +7,16 @@ from dpsql.table.model.statement_obj import Statement
 
 class Select(object):
     def __init__(self, **kwargs):
-        self._tables = str
-        self._columns: List[Column] = kwargs.get('cols', '')
-        self._calculated_column: List = None
-        self._aggregated_column: List = None
+        self._tables: List[QueryTable] = kwargs.get('tables', '')
+        self._tables_str: str = ''
+        self._columns: List[Column] = kwargs.get('columns', '')
+        self._calculated_column: List = kwargs.get('calculated_columns', '')
+        self._aggregated_column: List = kwargs.get('aggregated_columns', '')
+        self._custom_column: List = kwargs.get('custom_columns', '')
         self._column_str: str = ''
         self._calculated_column_str: str = ''
         self._aggregated_column_str: str = ''
-        self._joins: str = kwargs.get('joins', '')
-        self._joins_str: str = ''
+        self._custom_column_str: str = ''
         self._where: str = kwargs.get('where', '')
         self._where_str: str = ''
         self._group_by: str = kwargs.get('group_by', '')
@@ -28,6 +29,7 @@ class Select(object):
         self._is_sub_query: bool = kwargs.get('is_sub_query', False)
         self._alias: str = kwargs.get('alias', '')
         self._select_str: str = kwargs.get('select_query', '')
+        self._is_distinct: bool = kwargs.get('is_distinct', False)
 
     def __str__(self):
         self._select_builder()
@@ -54,8 +56,8 @@ class Select(object):
         return self._aggregated_column
 
     @property
-    def joins_(self):
-        return self._joins
+    def custom_column_(self):
+        return self._custom_column
 
     @property
     def where_(self):
@@ -82,6 +84,10 @@ class Select(object):
         return self._is_sub_query
 
     @property
+    def is_distinct_(self):
+        return self._is_distinct
+
+    @property
     def alias_(self):
         return self._alias
 
@@ -105,9 +111,9 @@ class Select(object):
     def aggregated_column_(self, param):
         self._aggregated_column = param
 
-    @joins_.setter
-    def joins_(self, param):
-        self._joins = param
+    @custom_column_.setter
+    def custom_column_(self, param):
+        self._custom_column = param
 
     @where_.setter
     def where_(self, param):
@@ -133,6 +139,10 @@ class Select(object):
     def is_sub_query_(self, param):
         self._is_sub_query = param
 
+    @is_distinct_.setter
+    def is_distinct_(self, param):
+        self._is_distinct = param
+
     @alias_.setter
     def alias_(self, param):
         self._alias = param
@@ -151,46 +161,59 @@ class Select(object):
         else:
             return self.select_str_
 
+    def _tables_builder(self):
+        if self.tables_:
+            self._tables_str = f"{', '.join(table.from_name_ for table in self.tables_)}"
+
     def _columns_builder(self):
         if self.columns_:
-            self._column_str = f"{', '.join(str(column) for column in self.columns_)}"
+            self._column_str = f"{', '.join(str(col.set_col_alias()) for col in self.columns_)}"
 
     def _calculated_columns_builder(self):
-        if self.columns_:
+        if self.calculated_column_:
             self._calculated_column_str = f"{', '.join(str(column) for column in self.calculated_column_)}"
 
     def _aggregated_columns_builder(self):
-        if self.columns_:
+        if self.aggregated_column_:
             self._aggregated_column_str = f"{', '.join(str(column) for column in self.aggregated_column_)}"
 
+    def _custom_columns_builder(self):
+        if self.custom_column_:
+            self._custom_column_str = f"{', '.join(str(column) for column in self.custom_column_)}"
+
     def _select_builder(self):
+        if self.tables_:
+            self._tables_builder()
         if self.columns_:
             self._columns_builder()
         if self.calculated_column_:
             self._calculated_columns_builder()
-        if self._aggregated_column:
+        if self.aggregated_column_:
             self._aggregated_columns_builder()
+        if self.custom_column_:
+            self._custom_columns_builder()
 
         columns = self._column_str if self._column_str != '' else '*'
         calc_columns = self._calculated_column_str if self._calculated_column_str != '' else ''
         aggr_columns = self._aggregated_column_str if self._aggregated_column_str != '' else ''
+        custom_columns = self._custom_column_str if self._custom_column_str != '' else ''
+        columns_combiner = list()
+        columns_combiner.append(columns)
 
-        columns_combiner = ''
-        if calc_columns != '' and aggr_columns != '':
-            columns_combiner = f"{columns}, {calc_columns}, {aggr_columns}"
-        elif calc_columns != '' and aggr_columns == '':
-            columns_combiner = f"{columns}, {calc_columns}"
-        elif calc_columns == '' and aggr_columns != '':
-            columns_combiner = f"{columns}, {aggr_columns}"
+        if columns != '*':
+            if calc_columns != '':
+                columns_combiner.append(calc_columns)
+            if aggr_columns != '':
+                columns_combiner.append(aggr_columns)
+            if custom_columns != '':
+                columns_combiner.append(custom_columns)
+
+        if self.is_distinct_ is True:
+            select_temp = f"Select Distinct {', '.join(elm for elm in columns_combiner)}"
         else:
-            columns_combiner = columns
+            select_temp = f"Select {', '.join(elm for elm in columns_combiner)}"
 
-        select_temp = f"Select {columns_combiner}"
-
-        if self.joins_ != '':
-            select_temp += f" From {self.joins_}"
-        else:
-            select_temp += f" From {self.tables_}"
+        select_temp += f" From {self._tables_str}"
 
         if self.where_ != '':
             select_temp += f" {self.where_}"
@@ -214,7 +237,7 @@ class Select(object):
             select_temp += f" {self.order_by_}"
 
         if self.is_sub_query_:
-            select_temp = f"({select_temp}) {self.alias_}"
+            select_temp = f"({select_temp.rstrip()}) {self.alias_}"
 
         self.select_str_ = select_temp
 
