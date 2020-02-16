@@ -247,7 +247,7 @@ marital_status_select = Select(
                     ValCriterion(
                         left_attr=text_tab.columns_.get('tab_ent'),
                         criteria=CriterionClause.Equal,
-                        values=[customer.columns_.get('mrtl_sta')]
+                        values=[cust_pro.columns_.get('mrtl_sta')]
                 )]
             )],
         clause=StatementClause.Where)
@@ -295,7 +295,7 @@ cus_iris_select = Select(
                     ValCriterion(
                         left_attr=text_tab.columns_.get('tab_ent'),
                         criteria=CriterionClause.Equal,
-                        values=[customer.columns_.get('iris_form_req')]
+                        values=[ftca_tab.columns_.get('iris_form_req')]
                 )]
             )],
         clause=StatementClause.Where)
@@ -319,7 +319,7 @@ city_select = Select(
                     ValCriterion(
                         left_attr=text_tab.columns_.get('tab_ent'),
                         criteria=CriterionClause.Equal,
-                        values=[customer.columns_.get('city_loc_code')]
+                        values=[address.columns_.get('city_loc_code')]
                 )]
             )],
         clause=StatementClause.Where)
@@ -368,7 +368,7 @@ acc_status_select = Select(
                     ValCriterion(
                         left_attr=text_tab.columns_.get('tab_ent'),
                         criteria=CriterionClause.Equal,
-                        values=[customer.columns_.get('cou_of_resi')]
+                        values=[account.columns_.get('sta_code')]
                 )]
             )],
         clause=StatementClause.Where)
@@ -428,17 +428,17 @@ final_select = Select(
             AttrCriterion(left_attr=account.columns_.get('cur_code'), right_attr=currency.columns_.get('cur_code')),
             AttrCriterion(left_attr=customer.columns_.get('cus_num'), right_attr=account.columns_.get('cus_num')),
             AttrCriterion(left_attr=customer.columns_.get('cus_num'), right_attr=address.columns_.get('cus_num')),
-            AttrCriterion(left_attr=customer.columns_.get('cus_num'), right_attr=oth_add.columns_.get('cus_num'),
+            AttrCriterion(left_attr=oth_add.columns_.get('cus_num'), right_attr=customer.columns_.get('cus_num'),
                           join_expression='(+)'),
             AttrCriterion(left_attr=account.columns_.get('cus_num'), right_attr=address.columns_.get('cus_num')),
             AttrCriterion(left_attr=customer.columns_.get('bra_code'), right_attr=account.columns_.get('bra_code')),
             AttrCriterion(left_attr=customer.columns_.get('bra_code'), right_attr=address.columns_.get('bra_code')),
-            AttrCriterion(left_attr=customer.columns_.get('bra_code'), right_attr=oth_add.columns_.get('bra_code'),
+            AttrCriterion(left_attr=oth_add.columns_.get('bra_code'), right_attr=customer.columns_.get('bra_code'),
                           join_expression='(+)'),
             AttrCriterion(left_attr=account.columns_.get('bra_code'), right_attr=address.columns_.get('bra_code')),
             AttrCriterion(left_attr=customer.columns_.get('cus_num'), right_attr=cust_pro.columns_.get('cus_num')),
             AttrCriterion(left_attr=customer.columns_.get('bra_code'), right_attr=cust_pro.columns_.get('bra_code')),
-            AttrCriterion(left_attr=customer.columns_.get('cus_num'), right_attr=ftca_tab.columns_.get('cus_num'),
+            AttrCriterion(left_attr=ftca_tab.columns_.get('cus_num'), right_attr=customer.columns_.get('cus_num'),
                           join_expression='(+)'),
             ValCriterion(left_attr=customer.columns_.get('cus_num'), criteria=CriterionClause.Equal, values=[1]),
             ValCriterion(left_attr=account.columns_.get('sta_code'), criteria=CriterionClause.Equal, values=[1]),
