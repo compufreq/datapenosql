@@ -28,6 +28,10 @@ class Select(object):
         self._alias: str = kwargs.get('alias', '')
         self._select_str: str = kwargs.get('select_query', '')
         self._is_distinct: bool = kwargs.get('is_distinct', False)
+        self._union: Select = kwargs.get('union', None)
+        self._union_all: Select = kwargs.get('union_all', None)
+        self._intersect: Select = kwargs.get('intersect', None)
+        self._except: Select = kwargs.get('except', None)
 
     def __str__(self):
         self._select_builder()
@@ -36,6 +40,22 @@ class Select(object):
     def __repr__(self):
         self._select_builder()
         return self.select_str_
+
+    @property
+    def union_(self):
+        return self._union
+
+    @property
+    def union_all_(self):
+        return self._union_all
+
+    @property
+    def intersect_(self):
+        return self._intersect
+
+    @property
+    def except_(self):
+        return self._except
 
     @property
     def tables_(self):
@@ -149,6 +169,22 @@ class Select(object):
     def select_str_(self, param):
         self._select_str = param
 
+    @union_.setter
+    def union_(self, param):
+        self._union = param
+
+    @union_all_.setter
+    def union_all_(self, param):
+        self._union_all = param
+
+    @intersect_.setter
+    def intersect_(self, param):
+        self._intersect = param
+
+    @except_.setter
+    def except_(self, param):
+        self._except = param
+
     def query_alias(self) -> str:
         if self.alias_ != "" and self.is_attrib_ is True:
             return f'({self.select_str_}) AS {self.alias_}'
@@ -190,6 +226,19 @@ class Select(object):
             self._aggregated_columns_builder()
         if self.custom_column_:
             self._custom_columns_builder()
+        operation_list = list()
+        if self.union_:
+            operation_str = f"Union {str(self.union_)}"
+            operation_list.append(operation_str)
+        elif self.union_all_:
+            operation_str = f"Union All {str(self.union_all_)}"
+            operation_list.append(operation_str)
+        elif self.intersect_:
+            operation_str = f"Intersect {str(self.intersect_)}"
+            operation_list.append(operation_str)
+        elif self.except_:
+            operation_str = f"Except {str(self.except_)}"
+            operation_list.append(operation_str)
 
         columns = self._column_str if self._column_str != '' else '*'
         calc_columns = self._calculated_column_str if self._calculated_column_str != '' else ''
@@ -233,6 +282,9 @@ class Select(object):
 
         elif self.order_by_ != '':
             select_temp += f" {self.order_by_}"
+
+        if operation_list:
+            select_temp += f" {operation_list[0]}"
 
         if self.is_sub_query_:
             select_temp = f"({select_temp.rstrip()}) {self.alias_}"
