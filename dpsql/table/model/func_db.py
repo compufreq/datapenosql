@@ -65,6 +65,20 @@ class DBFunc(object):
         self.func_str_ = res
         return res
 
+    def exists_(self, query: str = ''):
+        res = ''
+        if query != '':
+            res = f"Exists ({query})"
+        self.func_str_ = res
+        return res
+
+    def not_exists_(self, query: str = ''):
+        res = ''
+        if query != '':
+            res = f"Not Exists ({query})"
+        self.func_str_ = res
+        return res
+
     @staticmethod
     def custom_function_(func_method: str = '', alias: str = ''):
         res = f"{func_method}"
