@@ -216,6 +216,7 @@ class Select(object):
             self._custom_column_str = f"{', '.join(str(column) for column in self.custom_column_)}"
 
     def _select_builder(self):
+        print('in select builder')
         if self.tables_:
             self._tables_builder()
         if self.columns_:
@@ -225,6 +226,7 @@ class Select(object):
         if self.aggregated_column_:
             self._aggregated_columns_builder()
         if self.custom_column_:
+            print(self.custom_column_)
             self._custom_columns_builder()
         operation_list = list()
         if self.union_:
@@ -240,12 +242,16 @@ class Select(object):
             operation_str = f"Except {str(self.except_)}"
             operation_list.append(operation_str)
 
-        columns = self._column_str if self._column_str != '' else '*'
+        columns = self._column_str
         calc_columns = self._calculated_column_str if self._calculated_column_str != '' else ''
         aggr_columns = self._aggregated_column_str if self._aggregated_column_str != '' else ''
         custom_columns = self._custom_column_str if self._custom_column_str != '' else ''
+
+        if calc_columns == '' and aggr_columns == '' and custom_columns == '' and columns == '':
+            columns = '*'
         columns_combiner = list()
-        columns_combiner.append(columns)
+        if columns != '':
+            columns_combiner.append(columns)
 
         if columns != '*':
             if calc_columns != '':
