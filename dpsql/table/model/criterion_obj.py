@@ -36,13 +36,11 @@ class Criterion(object):
         self._or_group: List[Criterion] = kwargs.get('or_group', None)
 
     def __str__(self):
-        if self.clause_.name != 'GroupBy':
-            self.clause_str_ = Criterion.criteria_str(self)
+        self.clause_str_ = Criterion.criteria_str(self)
         return self.clause_str_
 
     def __repr__(self):
-        if self.clause_.name != 'GroupBy':
-            self.clause_str_ = Criterion.criteria_str(self)
+        self.clause_str_ = Criterion.criteria_str(self)
         return self.clause_str_
 
     @property
@@ -127,7 +125,8 @@ class Criterion(object):
             'OrderDesc': self._order_desc_,
             'OrderAsc': self._order_asc_,
             'IsNull': self._is_null_,
-            'IsNotNull': self._is_not_null_
+            'IsNotNull': self._is_not_null_,
+            'GroupBy': self._group_by_
         }
         if self.clause_:
             return res_dict.get(self.clause_.name, '')()
@@ -325,6 +324,17 @@ class Criterion(object):
         left_attr_name = left_attr
 
         res = f'{left_attr_name} ASC'
+
+        if self.alias_ != '':
+            res = f'({res}) AS {self.alias_}'
+
+        return res
+
+    def _group_by_(self):
+        left_attr = self.left_attr_
+        left_attr_name = left_attr
+
+        res = f'{left_attr_name}'
 
         if self.alias_ != '':
             res = f'({res}) AS {self.alias_}'

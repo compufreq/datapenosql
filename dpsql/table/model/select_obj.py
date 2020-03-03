@@ -216,7 +216,6 @@ class Select(object):
             self._custom_column_str = f"{', '.join(str(column) for column in self.custom_column_)}"
 
     def _select_builder(self):
-        print('in select builder')
         if self.tables_:
             self._tables_builder()
         if self.columns_:
@@ -226,7 +225,6 @@ class Select(object):
         if self.aggregated_column_:
             self._aggregated_columns_builder()
         if self.custom_column_:
-            print(self.custom_column_)
             self._custom_columns_builder()
         operation_list = list()
         if self.union_:

@@ -1,6 +1,6 @@
 from enum import Enum
 from typing import List
-from dpsql.table.model.criterion_obj import Criterion
+from dpsql.table.model.criterion_obj import Criterion, CriterionClause
 
 
 class StatementClause(Enum):
@@ -63,10 +63,27 @@ class Statement(object):
         self.statement_str_ = f"Where {' and '.join(str(var) for var in self.criteria_)}"
 
     def _group_by_(self):
-        self.statement_str_ = f"Group By {', '.join(str(var) for var in self.criteria_)}"
+        res_str = ''
+        print(len(self.criteria_))
+        for var in self.criteria_:
+            var.clause_ = CriterionClause.GroupBy
+            if res_str == '':
+                res_str = f"{str(var)}"
+            else:
+                res_str += f", {str(var)}"
+        self.statement_str_ = f"Group By {res_str}"
 
     def _order_by_(self):
-        self.statement_str_ = f"Order By {', '.join(str(var) for var in self.criteria_)}"
+        res_str = ''
+        for var in self.criteria_:
+            if var.clause_ is None:
+                var.clause_ = CriterionClause.OrderAsc
+
+            if res_str != '':
+                res_str = f"{str(var)}"
+            else:
+                res_str += f", {str(var)}"
+        self.statement_str_ = f"Order By {res_str}"
 
     def _having_(self):
         self.statement_str_ = f"Having {', '.join(str(var) for var in self.criteria_)}"
