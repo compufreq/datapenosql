@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='datapenosql',
-    version='0.2',
+    version='0.3',
     packages=['dpsql', 'dpsql.table', 'dpsql.table.model', 'dpsql.table.helpers', 'dpsql.table.service'],
     url='https://github.com/compufreq/datapenosql.git',
     license='MIT License',
