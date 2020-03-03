@@ -21,6 +21,7 @@ class CriterionClause(Enum):
     OrderAsc = 15
     IsNull = 16
     IsNotNull = 17
+    GroupBy = 18
 
 
 class Criterion(object):
@@ -35,11 +36,13 @@ class Criterion(object):
         self._or_group: List[Criterion] = kwargs.get('or_group', None)
 
     def __str__(self):
-        self.clause_str_ = Criterion.criteria_str(self)
+        if self.clause_.name != 'GroupBy':
+            self.clause_str_ = Criterion.criteria_str(self)
         return self.clause_str_
 
     def __repr__(self):
-        self.clause_str_ = Criterion.criteria_str(self)
+        if self.clause_.name != 'GroupBy':
+            self.clause_str_ = Criterion.criteria_str(self)
         return self.clause_str_
 
     @property
