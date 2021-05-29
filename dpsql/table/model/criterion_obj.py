@@ -167,10 +167,12 @@ class Criterion(object):
             right_attr_name = right_attr
 
             if self.join_expression_ == '':
-                res = f'{right_attr_name} = {left_attr_name}'
+                # res = f'{right_attr_name} = {left_attr_name}'
+                res = f'{left_attr_name} = {right_attr_name}'
             else:
                 join_expression = self.join_expression_
-                res = f'{right_attr_name} = {left_attr_name} {join_expression}'
+                # res = f'{right_attr_name} = {left_attr_name} {join_expression}'
+                res = f'{left_attr_name} = {right_attr_name} {join_expression}'
 
         if self.alias_ != '':
             res = f'({res}) AS {self.alias_}'
