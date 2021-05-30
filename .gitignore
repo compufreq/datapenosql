@@ -3,3 +3,6 @@
 /dpsql/table/test/
 /evenv
 /.idea
+/build
+/dist
+/datapenosql.egg-info
