@@ -65,12 +65,16 @@ class Statement(object):
     def _group_by_(self):
         res_str = ''
         print(len(self.criteria_))
-        for var in self.criteria_:
-            var.clause_ = CriterionClause.GroupBy
-            if res_str == '':
-                res_str = f"{str(var)}"
-            else:
-                res_str += f", {str(var)}"
+        if len(self.criteria_) == 1:
+            self.criteria_[0].clause_ = CriterionClause.GroupBy
+            res_str = f"{str(self.criteria_[0])}"
+        else:
+            for var in self.criteria_:
+                var.clause_ = CriterionClause.GroupBy
+                if res_str == '':
+                    res_str = f"{str(var)}"
+                else:
+                    res_str += f", {str(var)}"
         self.statement_str_ = f"Group By {res_str}"
 
     def _order_by_(self):

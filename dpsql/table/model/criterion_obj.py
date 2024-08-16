@@ -186,7 +186,10 @@ class Criterion(object):
             left_attr = self.left_attr_
             left_attr_name = left_attr
 
-            res = f'{left_attr_name} IN {tuple(self.val_)}'
+            if len(self.val_) == 1:
+                res = f'{left_attr_name} IN ( {self.val_[0]} )'
+            else:
+                res = f'{left_attr_name} IN {tuple(self.val_)}'
 
         if self.alias_ != '':
             res = f'({res}) AS {self.alias_}'
@@ -200,8 +203,10 @@ class Criterion(object):
         if crit_type == ValCriterion:
             left_attr = self.left_attr_
             left_attr_name = left_attr
-
-            res = f'{left_attr_name} NOT IN {tuple(self.val_)}'
+            if len(self.val_) == 1:
+                res = f'{left_attr_name} NOT IN ( {self.val_[0]} )'
+            else:
+                res = f'{left_attr_name} NOT IN {tuple(self.val_)}'
 
         return res
 
