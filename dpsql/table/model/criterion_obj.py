@@ -26,7 +26,7 @@ class CriterionClause(Enum):
 
 class Criterion(object):
     def __init__(self, **kwargs):
-        self._left_attr: str = kwargs.get('left_attr', None)
+        self._criterion_attr: str = kwargs.get('criterion_attr', None)
         self._clause: CriterionClause = kwargs.get('criteria', None)
         self._clause_str: str = ''
         self._alias: str = ''
@@ -44,8 +44,8 @@ class Criterion(object):
         return self.clause_str_
 
     @property
-    def left_attr_(self):
-        return self._left_attr
+    def criterion_attr_(self):
+        return self._criterion_attr
 
     @property
     def clause_(self):
@@ -75,9 +75,9 @@ class Criterion(object):
     def or_group_(self):
         return self._or_group
 
-    @left_attr_.setter
-    def left_attr_(self, param):
-        self._left_attr = param
+    @criterion_attr_.setter
+    def criterion_attr_(self, param):
+        self._criterion_attr = param
 
     @clause_.setter
     def clause_(self, param):
@@ -141,7 +141,7 @@ class Criterion(object):
             val1 = self.val_[0]
             val2 = self.val_[1]
 
-            left_attr = self.left_attr_
+            left_attr = self.criterion_attr_
             left_attr_name = left_attr
 
             res = f'{left_attr_name} BETWEEN {val1} AND {val2}'
@@ -155,7 +155,7 @@ class Criterion(object):
         crit_type = type(self)
         res = ''
 
-        left_attr = self.left_attr_
+        left_attr = self.criterion_attr_
         left_attr_name = left_attr
 
         if crit_type == ValCriterion:
@@ -183,7 +183,7 @@ class Criterion(object):
         res = ''
 
         if crit_type == ValCriterion:
-            left_attr = self.left_attr_
+            left_attr = self.criterion_attr_
             left_attr_name = left_attr
 
             if len(self.val_) == 1:
@@ -201,7 +201,7 @@ class Criterion(object):
         res = ''
 
         if crit_type == ValCriterion:
-            left_attr = self.left_attr_
+            left_attr = self.criterion_attr_
             left_attr_name = left_attr
             if len(self.val_) == 1:
                 res = f'{left_attr_name} NOT IN ( {self.val_[0]} )'
@@ -215,7 +215,7 @@ class Criterion(object):
         res = ''
 
         if crit_type == ValCriterion:
-            left_attr = self.left_attr_
+            left_attr = self.criterion_attr_
             left_attr_name = left_attr
 
             res = f'{left_attr_name} IS NOT NULL'
@@ -227,7 +227,7 @@ class Criterion(object):
         res = ''
 
         if crit_type == ValCriterion:
-            left_attr = self.left_attr_
+            left_attr = self.criterion_attr_
             left_attr_name = left_attr
 
             res = f'{left_attr_name} IS NULL'
@@ -240,7 +240,7 @@ class Criterion(object):
 
         if crit_type == ValCriterion:
             val = self.val_[0]
-            left_attr = self.left_attr_
+            left_attr = self.criterion_attr_
             left_attr_name = left_attr
 
             res = f'{left_attr_name} LIKE {val}'
@@ -256,7 +256,7 @@ class Criterion(object):
 
         if crit_type == ValCriterion:
             val = self.val_[0]
-            left_attr = self.left_attr_
+            left_attr = self.criterion_attr_
             left_attr_name = left_attr
 
             res = f'{left_attr_name} < {val}'
@@ -272,7 +272,7 @@ class Criterion(object):
 
         if crit_type == ValCriterion:
             val = self.val_[0]
-            left_attr = self.left_attr_
+            left_attr = self.criterion_attr_
             left_attr_name = left_attr
 
             res = f'{left_attr_name} > {val}'
@@ -288,7 +288,7 @@ class Criterion(object):
 
         if crit_type == ValCriterion:
             val = self.val_[0]
-            left_attr = self.left_attr_
+            left_attr = self.criterion_attr_
             left_attr_name = left_attr
 
             res = f'{left_attr_name} <= {val}'
@@ -304,7 +304,7 @@ class Criterion(object):
 
         if crit_type == ValCriterion:
             val = self.val_[0]
-            left_attr = self.left_attr_
+            left_attr = self.criterion_attr_
             left_attr_name = left_attr
 
             res = f'{left_attr_name} >= {val}'
@@ -315,7 +315,7 @@ class Criterion(object):
         return res
 
     def _order_desc_(self):
-        left_attr = self.left_attr_
+        left_attr = self.criterion_attr_
         left_attr_name = left_attr
 
         res = f'{left_attr_name} DESC'
@@ -327,7 +327,7 @@ class Criterion(object):
 
     def _order_asc_(self):
 
-        left_attr = self.left_attr_
+        left_attr = self.criterion_attr_
         left_attr_name = left_attr
 
         res = f'{left_attr_name} ASC'
@@ -338,7 +338,7 @@ class Criterion(object):
         return res
 
     def _group_by_(self):
-        left_attr = self.left_attr_
+        left_attr = self.criterion_attr_
         left_attr_name = left_attr
 
         res = f'{left_attr_name}'

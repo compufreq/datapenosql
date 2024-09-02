@@ -7,6 +7,7 @@ class Select(object):
     def __init__(self, **kwargs):
         self._tables: List[QueryTable] = kwargs.get('tables', '')
         self._tables_str: str = ''
+        self._tables_joins_obj: str = kwargs.get('join_query', '')
         self._columns: List[Column] = kwargs.get('columns', '')
         self._calculated_column: List = kwargs.get('calculated_columns', '')
         self._aggregated_column: List = kwargs.get('aggregated_columns', '')
@@ -60,6 +61,10 @@ class Select(object):
     @property
     def tables_(self):
         return self._tables
+
+    @property
+    def tables_joins_obj_(self):
+        return self._tables_joins_obj
 
     @property
     def columns_(self):
@@ -116,6 +121,10 @@ class Select(object):
     @tables_.setter
     def tables_(self, param):
         self._tables = param
+
+    @tables_joins_obj_.setter
+    def tables_joins_obj_(self, param):
+        self._tables_joins_obj = param
 
     @columns_.setter
     def columns_(self, param):
@@ -196,8 +205,10 @@ class Select(object):
             return self.select_str_
 
     def _tables_builder(self):
-        if self.tables_:
-            self._tables_str = f"{', '.join(table.from_name_ for table in self.tables_)}"
+        if self.tables_joins_obj_:
+            self._tables_str = self.tables_joins_obj_
+        elif self.tables_:
+            self._tables_str = f"{', '.join(table._table_name_alias() for table in self.tables_)}"
 
     def _columns_builder(self):
         if self.columns_:
@@ -216,7 +227,7 @@ class Select(object):
             self._custom_column_str = f"{', '.join(str(column) for column in self.custom_column_)}"
 
     def _select_builder(self):
-        if self.tables_:
+        if self.tables_ or self.tables_joins_obj_:
             self._tables_builder()
         if self.columns_:
             self._columns_builder()

@@ -5,8 +5,8 @@ def query_table(table_obj: QueryTable = None) -> str:
     """
     Add selected attribs to the sql query w/o aliases.
 
-    Takes a Column object as as input and inspects if it contains an alias
-    or not, added to that it checks if it's a general column for the query or
+    Takes a Column object as input and inspects if it contains an alias
+    or not, added to that it checks if it's a general column for the query, or
     it's related to a specific table w/o table alias
 
     Parameters
@@ -33,7 +33,7 @@ def query_attrib(attrib_obj: Column, table_obj: QueryTable = None) -> str:
     """
     Add selected attribs to the sql query w/o aliases.
 
-    Takes a Column object as as input and inspects if it contains an alias
+    Takes a Column object as input and inspects if it contains an alias
     or not, added to that it checks if it's a general column for the query or
     it's related to a specific table w/o table alias
 

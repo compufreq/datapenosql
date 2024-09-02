@@ -7,34 +7,51 @@ from typing import List, Dict
 from dpsql.table.model.func_aggregate import AggregateFunc
 from dpsql.table.model.func_db import DBFunc
 from dpsql.table.model.criterion_obj import AttrCriterion
+from dpsql.table.model.statement_obj import Statement
 
+
+class QueryCase(Enum):
+    UpperCase = 1
+    LowerCase = 2
+
+class VariablesCase(Enum):
+    UpperCase = 1
+    LowerCase = 2
+    StandardCase = 3
 
 class QueryTable(object):
     def __init__(self, **kwargs):
         self._columns: Dict[Column]  = kwargs.get('columns', None)
         self._name: str = kwargs.get('name', '')
         self._alias: str = kwargs.get('alias', '')
-        self._from_name: str = kwargs.get('from_name', '')
+        self._name_alias_system: str = kwargs.get('name_alias_system', '')
+        #self._from_name: str = kwargs.get('from_name', '')
         self._join_str = ''
+        self._query_case: QueryCase = kwargs.get('query_case', QueryCase.UpperCase)
+        self._variables_case: VariablesCase = kwargs.get('variables_case', VariablesCase.StandardCase)
 
     def __str__(self):
-        return self.table_name_getter()
+        return self._name_getter()
 
     def __repr__(self):
-        return self.table_name_getter()
+        return self._name_getter()
 
     @property
     def columns_(self):
         return self._columns
 
-    @property
-    def from_name_(self):
-        self._from_name = self.table_name_set_alias()
-        return self._from_name
+    # @property
+    # def from_name_(self):
+    #     self._from_name = self.table_name_set_alias()
+    #     return self._from_name
 
     @property
     def name_(self):
         return self._name
+
+    @property
+    def name_alias_system_(self):
+        return self._name_alias_system
 
     @property
     def alias_(self):
@@ -44,13 +61,26 @@ class QueryTable(object):
     def join_str_(self):
         return self._join_str
 
+    @property
+    def query_case_(self):
+        return self._query_case
+
+    @property
+    def variables_case_(self):
+        return self._variables_case
+
+
     @columns_.setter
     def columns_(self, param: List[Column]):
         self._columns = param
 
-    @from_name_.setter
-    def from_name_(self, param: str):
-        self._from_name = param
+    # @from_name_.setter
+    # def from_name_(self, param: str):
+    #     self._from_name = param
+
+    @name_alias_system_.setter
+    def name_alias_system_(self, param: str):
+        self._name_alias_system = param
 
     @name_.setter
     def name_(self, param: str):
@@ -59,152 +89,171 @@ class QueryTable(object):
     @alias_.setter
     def alias_(self, param):
         self._alias = param
+        self.name_alias_system_ = self._table_name_alias()
 
     @join_str_.setter
     def join_str_(self, param):
         self._join_str = param
 
-    def table_name_getter(self):
-        res = self.name_
-        if self.alias_ != "":
-            res = self.alias_
+    @query_case_.setter
+    def query_case_(self, param):
+        self._query_case = param
 
-        return res
+    @variables_case_.setter
+    def variables_case_(self, param):
+        self._variables_case = param
 
-    def inner_join_(self, right_table, on):
+
+    def _table_name_alias(self):
+        if self.alias_ != '':
+            if self.variables_case_ == VariablesCase.UpperCase:
+                self.alias_ = self.alias_.upper()
+            elif self.variables_case_ == VariablesCase.LowerCase:
+                self.alias_ = self.alias_.lower()
+            else:
+                self.alias_ = self.alias_
+            return f"{self._name_getter()} {self.alias_}"
+        else:
+            return self._name_getter()
+
+    def _name_getter(self):
+        if self.variables_case_ == VariablesCase.UpperCase:
+            return self.name_.upper()
+        elif self.variables_case_ == VariablesCase.LowerCase:
+            return self.name_.lower()
+        else:
+            return self.name_
+
+    def _fill_return_join_str_result(self, right_table: QueryTable, res:str):
+        if self.join_str_ == '':
+            res = f"{self._table_name_alias()} {res}"
+            self.join_str_ = res
+            right_table.join_str_ = res
+        else:
+            self.join_str_ += res
+            right_table.join_str_ = self.join_str_
+
+        return right_table
+
+    def inner_join_(self, right_table:QueryTable, on:Statement):
         logger = logging.getLogger(__name__)
         res = ''
         try:
-            left_t = self.from_name_
-            right_t = right_table
-            if self.join_str_ == '':
-                res = f"{left_t} inner join {right_t} on ("
-                res += f"{' and '.join(str(crit) for crit in on)}) "
-                self.join_str_ = res
-                right_t.join_str_ = res
+            right_t = right_table._name_getter()
+            if self.query_case_ == QueryCase.UpperCase:
+                res = f"INNER JOIN {right_t} ON ("
+                res += f"{' AND '.join(str(crit) for crit in on.criteria_)}) "
             else:
                 res = f"inner join {right_t} on ("
-                res += f"{' and '.join(str(crit) for crit in on)}) "
-                self.join_str_ += res
-                right_t.join_str_ = self.join_str_
+                res += f"{' and '.join(str(crit) for crit in on.criteria_)}) "
 
-            return right_t
+            opt_table = self._fill_return_join_str_result(right_table, res)
+
+            return opt_table
 
         except TypeError as error:
             logger.exception('The Join does not contain On attributes', exc_info=True)
 
-    def left_outer_join_(self, right_table, on):
+    def left_outer_join_(self, right_table:QueryTable, on):
         logger = logging.getLogger(__name__)
         res = ''
         try:
-            left_t = self.from_name_
-            right_t = right_table
-            if self.join_str_ == '':
-                res = f"{left_t} left outer join {right_t} on ("
-                res += f"{' and '.join(str(crit) for crit in on)}) "
-                self.join_str_ = res
-                right_t.join_str_ = res
+            right_t = right_table._name_getter()
+            if self.query_case_ == QueryCase.UpperCase:
+                res = f"LEFT OUTER JOIN {right_t} ON ("
+                res += f"{' AND '.join(str(crit) for crit in on)}) "
             else:
                 res = f"left outer join {right_t} on ("
                 res += f"{' and '.join(str(crit) for crit in on)}) "
-                self.join_str_ += res
-                right_t.join_str_ = self.join_str_
 
-            return right_t
+            opt_table = self._fill_return_join_str_result(right_table, res)
+
+            return opt_table
 
         except TypeError as error:
             logger.exception('The Join does not contain On attributes', exc_info=True)
 
-    def right_outer_join_(self, right_table, on):
+    def right_outer_join_(self, right_table:QueryTable, on):
         logger = logging.getLogger(__name__)
         res = ''
         try:
-            left_t = self.from_name_
-            right_t = right_table
-            if self.join_str_ == '':
-                res = f"{left_t} right outer join {right_t} on ("
-                res += f"{' and '.join(str(crit) for crit in on)}) "
-                self.join_str_ = res
-                right_t.join_str_ = res
+            right_t = right_table._name_getter()
+            if self.query_case_ == QueryCase.UpperCase:
+                res = f"RIGHT OUTER JOIN {right_t} ON ("
+                res += f"{' AND '.join(str(crit) for crit in on)}) "
             else:
                 res = f"right outer join {right_t} on ("
                 res += f"{' and '.join(str(crit) for crit in on)}) "
-                self.join_str_ += res
-                right_t.join_str_ = self.join_str_
 
-            return right_t
+            opt_table = self._fill_return_join_str_result(right_table, res)
+
+            return opt_table
 
         except TypeError as error:
             logger.exception('The Join does not contain On attributes', exc_info=True)
 
-    def natural_join_(self, right_table, on):
+    def natural_join_(self, right_table:QueryTable, on):
         logger = logging.getLogger(__name__)
         res = ''
         try:
-            left_t = self.from_name_
-            right_t = right_table
-            if self.join_str_ == '':
-                res = f"{left_t} natural join {right_t} on ("
-                res += f"{' and '.join(str(crit) for crit in on)}) "
-                self.join_str_ = res
-                right_t.join_str_ = res
+
+            right_t = right_table._name_getter()
+            if self.query_case_ == QueryCase.UpperCase:
+                res = f"NATURAL JOIN {right_t} ON ("
+                res += f"{' AND '.join(str(crit) for crit in on)}) "
             else:
                 res = f"natural join {right_t} on ("
                 res += f"{' and '.join(str(crit) for crit in on)}) "
-                self.join_str_ += res
-                right_t.join_str_ = self.join_str_
 
-            return right_t
+            opt_table = self._fill_return_join_str_result(right_table, res)
+
+            return opt_table
 
         except TypeError as error:
             logger.exception('The Join does not contain On attributes', exc_info=True)
 
-    def natural_left_join_(self, right_table, on):
+    def natural_left_join_(self, right_table:QueryTable, on):
         logger = logging.getLogger(__name__)
         res = ''
         try:
-            left_t = self.from_name_
-            right_t = right_table
-            if self.join_str_ == '':
-                res = f"{left_t} natural left join {right_t} on ("
-                res += f"{' and '.join(str(crit) for crit in on)}) "
-                self.join_str_ = res
-                right_t.join_str_ = res
+
+            right_t = right_table._name_getter()
+            if self.query_case_ == QueryCase.UpperCase:
+                res = f"NATURAL LEFT JOIN {right_t} ON ("
+                res += f"{' AND '.join(str(crit) for crit in on)}) "
             else:
                 res = f"natural left join {right_t} on ("
                 res += f"{' and '.join(str(crit) for crit in on)}) "
-                self.join_str_ += res
-                right_t.join_str_ = self.join_str_
 
-            return right_t
+            opt_table = self._fill_return_join_str_result(right_table, res)
+
+            return opt_table
 
         except TypeError as error:
             logger.exception('The Join does not contain On attributes', exc_info=True)
 
-    def natural_right_join_(self, right_table, on):
+    def natural_right_join_(self, right_table:QueryTable, on):
         logger = logging.getLogger(__name__)
         res = ''
         try:
-            left_t = self.from_name_
-            right_t = right_table
-            if self.join_str_ == '':
-                res = f"{left_t} natural right join {right_t} on ("
-                res += f"{' and '.join(str(crit) for crit in on)}) "
-                self.join_str_ = res
-                right_t.join_str_ = res
+
+            right_t = right_table._name_getter()
+            if self.query_case_ == QueryCase.UpperCase:
+                res = f"NATURAL RIGHT JOIN {right_t} ON ("
+                res += f"{' AND '.join(str(crit) for crit in on)}) "
             else:
                 res = f"natural right join {right_t} on ("
                 res += f"{' and '.join(str(crit) for crit in on)}) "
-                self.join_str_ += res
-                right_t.join_str_ = self.join_str_
 
-            return right_t
+            opt_table = self._fill_return_join_str_result(right_table, res)
+
+            return opt_table
 
         except TypeError as error:
             logger.exception('The Join does not contain On attributes', exc_info=True)
 
     def column_name_getter(self):
-        table_name = self.table_name_getter()
+        table_name = self._name_getter()
         res = f"{table_name}.*"
         if self.columns_:
             res = ''
@@ -220,12 +269,6 @@ class QueryTable(object):
                     else:
                         res += f'{table_name}.{column.name_}'
         return res
-
-    def table_name_set_alias(self):
-        if self.alias_ != '':
-            return f"{self.name_} {self.alias_}"
-        else:
-            return self.name_
 
 
 class Table(QueryTable):
@@ -415,191 +458,3 @@ class CustomColumn(object):
     @alias_.setter
     def alias_(self, param):
         self._alias = param
-
-
-class JoinClause(Enum):
-    Inner = 1
-    LeftOuter = 2
-    RightOuter = 3
-    Cross = 4
-    Natural = 5
-    NaturalRight = 6
-    NaturalLeft = 7
-
-
-class Join(object):
-    def __init__(self, **kwargs):
-        self._left_table: QueryTable = kwargs.get('left_table', None)
-        self._right_table: QueryTable = kwargs.get('right_table', None)
-        self._type: JoinClause = kwargs.get('join_clause', None)
-        self._cross_join_tables: List[QueryTable] = kwargs.get('cross_tables', None)
-        self._on_attribs_criteria: List[AttrCriterion] = kwargs.get('on', None)
-        self._where_attribs_criteria: List[AttrCriterion] = kwargs.get('where', None)
-        self._join_str: str = ''
-
-    def __str__(self):
-        if self.join_str_:
-            return self.join_str_
-
-    def __repr__(self):
-        if self.join_str_:
-            return self.join_str_
-
-    @property
-    def left_table_(self):
-        return self._left_table
-
-    @property
-    def right_table_(self):
-        return self._right_table
-
-    @property
-    def type_(self):
-        return self._type
-
-    @property
-    def join_str_(self):
-        return self._join_str
-
-    @property
-    def cross_join_tables_(self):
-        return self._cross_join_tables
-
-    @property
-    def on_attribs_criteria_(self):
-        return self._on_attribs_criteria
-
-    @property
-    def where_attribs_criteria_(self):
-        return self._where_attribs_criteria
-
-    @property
-    def join_(self):
-        return self._join
-
-    @join_.setter
-    def join_(self, param):
-        self._join = param
-
-    @left_table_.setter
-    def left_table_(self, param):
-        self._left_table = param
-
-    @right_table_.setter
-    def right_table_(self, param):
-        self._right_table = param
-
-    @type_.setter
-    def type_(self, param):
-        self._type = param
-
-    @join_str_.setter
-    def join_str_(self, param):
-        self._join_str = param
-
-    @cross_join_tables_.setter
-    def cross_join_tables_(self, param):
-        self._cross_join_tables = param
-
-    @on_attribs_criteria_.setter
-    def on_attribs_criteria_(self, param):
-        self._on_attribs_criteria = param
-
-    @where_attribs_criteria_.setter
-    def where_attribs_criteria_(self, param):
-        self._where_attribs_criteria = param
-
-    def join_to_string(self):
-        return self.join_str_
-
-    def inner_(self):
-        logger = logging.getLogger(__name__)
-        res = ''
-        try:
-            left_t = self.left_table_.from_name_
-            right_t = self.right_table_.from_name_
-            res = f"{left_t} inner join {right_t} on ("
-            res += f"{' and '.join(str(crit) for crit in self.on_attribs_criteria_)}) "
-            self.join_str_ = res
-
-        except TypeError as error:
-            logger.exception('The Join does not contain On attributes', exc_info=True)
-
-    def left_outer_(self):
-        logger = logging.getLogger(__name__)
-        res = ''
-        try:
-            left_t = self.left_table_.from_name_
-            right_t = self.right_table_.from_name_
-            res = f"{left_t} left outer join {right_t} on ("
-            res += f"{' and '.join(str(crit) for crit in self.on_attribs_criteria_)})"
-            self.join_str_ = res
-
-        except TypeError as error:
-            logger.exception('The Join does not contain On attributes', exc_info=True)
-
-    def right_outer_(self):
-        logger = logging.getLogger(__name__)
-        res = ''
-        try:
-            left_t = self.left_table_.from_name_
-            right_t = self.right_table_.from_name_
-            res = f"{left_t} right outer join {right_t} on ("
-            res += f"{' and '.join(str(crit) for crit in self.on_attribs_criteria_)})"
-            self.join_str_ = res
-
-        except TypeError as error:
-            logger.exception('The Join does not contain On attributes', exc_info=True)
-
-    def cross_(self):
-        logger = logging.getLogger(__name__)
-        res = ''
-        try:
-            res = f"{', '.join(table_in.from_name_ for table_in in self.cross_join_tables_)}"
-            if len(self.cross_join_tables_) == 2:
-                if self.on_attribs_criteria_:
-                    res += f" on ({' and '.join(str(crit) for crit in self.on_attribs_criteria_)})"
-                # elif self.where_attribs_criteria_:
-                #     res += f" Where {' and '.join(str(crit) for crit in self.where_attribs_criteria_)}"
-            self.join_str_ = res
-
-        except TypeError as error:
-            logger.exception('The Join does not contain On or Where attributes', exc_info=True)
-
-    def natural_(self):
-        logger = logging.getLogger(__name__)
-        res = ''
-        try:
-            left_t = self.left_table_.from_name_
-            right_t = self.right_table_.from_name_
-            res = f"{left_t} natural join {right_t} on ("
-            res += f"{' and '.join(str(crit) for crit in self.on_attribs_criteria_)})"
-            self.join_str_ = res
-        except TypeError as error:
-            logger.exception('The Join does not contain On attributes', exc_info=True)
-
-    def natural_left_(self):
-        logger = logging.getLogger(__name__)
-        res = ''
-        try:
-            left_t = self.left_table_.from_name_
-            right_t = self.right_table_.from_name_
-            res = f"{left_t} natural left join {right_t} on ("
-            res += f"{' and '.join(str(crit) for crit in self.on_attribs_criteria_)})"
-            self.join_str_ = res
-
-        except TypeError as error:
-            logger.exception('The Join does not contain On attributes', exc_info=True)
-
-    def natural_right_(self):
-        logger = logging.getLogger(__name__)
-        res = ''
-        try:
-            left_t = self.left_table_.from_name_
-            right_t = self.right_table_.from_name_
-            res = f"{left_t} natural right join {right_t} on ("
-            res += f"{' and '.join(str(crit) for crit in self.on_attribs_criteria_)})"
-            self.join_str_ = res
-
-        except TypeError as error:
-            logger.exception('The Join does not contain On attributes', exc_info=True)
