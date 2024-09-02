@@ -6,3 +6,6 @@
 /build
 /dist
 /datapenosql.egg-info
+.venv
+venv
+*.xml
